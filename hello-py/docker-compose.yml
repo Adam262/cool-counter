@@ -5,7 +5,7 @@ services:
     # Pull image from repo
     image: adam262/docker-tutorial:part2
     deploy:
-      replicas: 10
+      replicas: 5
       resources:  
         # Limit each instance to use, at most, 10% of the CPU (across all cores), and 50MB of RAM
         limits:
@@ -15,9 +15,32 @@ services:
         # Immediately restart containers if one fails
         condition: on-failure
     ports:
-      - "4001:80"
+      - "80:80"
     networks:
       # Instruct containers to share port 80 via load-balanced network called webnet
+      - webnet
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - "/home/docker/data:/data"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    command: redis-server --appendonly yes
+    networks:
       - webnet
 networks:
   webnet:
