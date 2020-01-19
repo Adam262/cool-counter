@@ -3,5 +3,14 @@
   <link href="<%= url('/stylesheets/main.css') %>" rel="stylesheet" type="text/css" />
 </head>
 
-<h1> Hello there </h1>
+<h1> Hello There</h1>
 
+<p> Increment or Decrement the Counter Please!</p>
+
+<div> Count: <span id="count"> <%= @count %> </span> </div>
+
+<button id="increment-button"> + </button>
+<button id="decrement-button"> - </button>
+<button id="reset-button"> Reset </button>
+
+<script type="text/javascript" src="/main.js"></script>
