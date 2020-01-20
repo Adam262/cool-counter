@@ -24,11 +24,11 @@
     });
   }
 
-  const incrementButton = document.querySelector("#increment-button");
-  incrementButton.addEventListener('click', () => updateCountServer('increment'));
+  const plusButton = document.querySelector("#plus-button");
+  plusButton.addEventListener('click', () => updateCountServer('plus'));
 
-  const decrementButton = document.querySelector("#decrement-button");
-  decrementButton.addEventListener('click', () => updateCountServer('decrement'));
+  const minusButton = document.querySelector("#minus-button");
+  minusButton.addEventListener('click', () => updateCountServer('minus'));
 
   const resetButton = document.querySelector("#reset-button");
   resetButton.addEventListener('click', () => updateCountServer('reset'));

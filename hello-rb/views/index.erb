@@ -3,14 +3,23 @@
   <link href="<%= url('/stylesheets/main.css') %>" rel="stylesheet" type="text/css" />
 </head>
 
-<h1> Hello There</h1>
+<body>
+  <div class="full-width-container">
+    <h1> Hello There! </h1>
 
-<p> Increment or Decrement the Counter Please!</p>
+    <p> Press buttons to tick the counter! </p>   
+  </div>
 
-<div> Count: <span id="count"> <%= @count %> </span> </div>
-
-<button id="increment-button"> + </button>
-<button id="decrement-button"> - </button>
-<button id="reset-button"> Reset </button>
+  <div class="button-container"> 
+    <div class="flex-container">
+      <button id="plus-button"> + </button>
+      <h1><span id="count"> <%= @count %> </span></h1>
+      <button id="minus-button"> - </button>
+    </div>
+    <div class="flex-container">
+      <button id="reset-button"> Reset </button>
+    </div>
+  </div>
+</body> 
 
 <script type="text/javascript" src="/main.js"></script>

@@ -1,3 +1,47 @@
-h1 {
-  color: red;
+$light-grey: #D5DFE5;
+$light-green: #7F9172;
+$dark-green: #567568;
+$rose: #C9B1BD;
+
+body {
+  font-family: Tahoma;
+  background-color: $light-grey;
 }
+
+h1 {
+  margin: 50px;
+  font-size: 50px;
+}
+
+.full-width-container {
+  text-align: center;
+  margin: auto;
+  width: 100%;
+}
+
+.button-container {
+  border: 3px solid $dark-green;
+  border-radius: 15px;
+  padding: 20px; 
+  width: 60%;
+  margin: auto; 
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+button {
+  border-radius: 15px;
+  font-size: 50px;
+  height: 200px;
+  width: 200px;
+  &:hover { cursor: pointer; }
+  &:focus { outline: 0; }
+  &#plus-button { background-color: $light-green; }
+  &#minus-button { background-color: $rose; }
+}
+
+
+

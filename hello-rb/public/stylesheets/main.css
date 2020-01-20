@@ -1,4 +1,39 @@
+body {
+  font-family: Tahoma;
+  background-color: #D5DFE5; }
+
 h1 {
-  color: red; }
+  margin: 50px;
+  font-size: 50px; }
+
+.full-width-container {
+  text-align: center;
+  margin: auto;
+  width: 100%; }
+
+.button-container {
+  border: 3px solid #567568;
+  border-radius: 15px;
+  padding: 20px;
+  width: 60%;
+  margin: auto; }
+
+.flex-container {
+  display: flex;
+  justify-content: space-evenly; }
+
+button {
+  border-radius: 15px;
+  font-size: 50px;
+  height: 200px;
+  width: 200px; }
+  button:hover {
+    cursor: pointer; }
+  button:focus {
+    outline: 0; }
+  button#plus-button {
+    background-color: #7F9172; }
+  button#minus-button {
+    background-color: #C9B1BD; }
 
 /*# sourceMappingURL=main.css.map */

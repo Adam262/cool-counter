@@ -23,12 +23,12 @@ class App < Sinatra::Application
     action = JSON.parse(request.body.read)["action"]
     
     case action
-    when "increment" 
-      redis.incr "count"
-    when "decrement"
-      redis.decr "count"
+    when "plus" 
+      redis.incr("count")
+    when "minus"
+      redis.decr("count") if count.to_i > 0
     when "reset"
-      redis.set "count", 0
+      redis.set("count", 0)
     end
 
     status 200
