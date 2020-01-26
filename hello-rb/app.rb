@@ -4,6 +4,7 @@ require 'sass'
 require 'sass/plugin/rack'
 require 'redis'
 require 'json'
+require 'thin'
 
 class App < Sinatra::Application
   use Sass::Plugin::Rack
@@ -11,11 +12,18 @@ class App < Sinatra::Application
   set :views, File.dirname(__FILE__) + '/views'
   set :public_folder, File.dirname(__FILE__) + '/public'
 
+  set :bind, '0.0.0.0'
+
   get '/hello' do
     @count=count
 
     status 200
     erb :index
+  end
+
+  get '/ping' do
+    status 200
+    'pong'
   end
 
   put '/update' do

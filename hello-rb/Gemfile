@@ -9,4 +9,5 @@ gem "sinatra-contrib"
 gem 'sass'
 gem 'redis'
 gem 'json'
+gem 'thin'
 

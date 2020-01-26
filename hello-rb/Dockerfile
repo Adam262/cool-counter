@@ -11,11 +11,11 @@ COPY . $APP_HOME
 RUN \
     DEBIAN_FRONTEND=noninteractive apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      libssl-dev
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
 
 RUN bundle install
 
 EXPOSE 4567
 
-CMD ["rackup", "-p", "4567"]
+CMD ["rackup", "--host", "0.0.0.0", "-p", "4567"]
