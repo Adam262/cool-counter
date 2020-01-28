@@ -31,13 +31,17 @@
 * curl is not by default on Debian. Need to install it. 
 * nice to assign --name to docker container, else docker will give a random one, eg:
 ```
-sudo docker run --name=sinatra-app -d -p 4567:4567 adam262/sinatra-app
-sudo docker run --name=redis -d -p 6379:6379 redis
+docker run --name=sinatra-app -d -p 4567:4567 adam262/sinatra-app
+docker run --name=redis -d -p 6379:6379 redis
 ``` 
-* Need to sudo when I start Redis, else cannot even ping from redis-cli on redis container
 * concept of linking containers. --link is legacy concept, now should create network (or use docker compose, or use K8S)
+* need to pass in hostname, else it defaults to container sha!
+
 ```
 docker network create sinatra-app-network
-sudo docker run --name=sinatra-app --network=sinatra-app-network -d -p 4567:4567 adam262/sinatra-app
-sudo docker run --name=redis --network=sinatra-app-network -d -p 6379:6379 redis
+docker run --name=sinatra-app --network=sinatra-app-network -d -p 4567:4567 adam262/sinatra-app
+docker run --name=redis --hostname=redis --network=sinatra-app-network -d -p 6379:6379 redis
 ```
+TO DO
+* optimize doccker build. right now any change in app code invalidates cache and causes all gems to be re fetched
+* apt-get telnet so I can `telnet redis 6379`
