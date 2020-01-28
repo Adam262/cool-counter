@@ -46,7 +46,7 @@ class App < Sinatra::Application
   private
 
   def redis
-    @redis ||= Redis.new
+    @redis ||= Redis.new(host: 'redis', port: 6379)
   end 
 
   def count
