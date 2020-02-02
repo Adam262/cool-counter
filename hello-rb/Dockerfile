@@ -2,6 +2,8 @@ FROM ruby:2.6.5-slim
 
 MAINTAINER "Adam Barcan <abarcan@gmail.com>"
 
+ENV REDIS_HOST 'redis'
+
 RUN \
     DEBIAN_FRONTEND=noninteractive apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
