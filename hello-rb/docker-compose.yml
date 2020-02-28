@@ -1,0 +1,12 @@
+version: '3'
+services:
+  web:
+    build: .
+    image: adam262/sinatra-app
+    container_name: sinatra-app
+    ports:
+      - "4567:4567"
+  redis:
+    image: redis
+    container_name: redis
+ 

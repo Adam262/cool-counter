@@ -18,6 +18,10 @@
 * get app to talk to Redis
 * optimize Docker image
 
+## Stage 3 - Docker Compose app
+### Key steps
+* Write docker-compose.yml
+
 ### Gotchas
 #### You are probably missing a lot of system dependencies for gems, such as gcc 
 `bundle install` kept failing. I would shell into a failed build, bundle install again, see error logs and add
@@ -54,3 +58,7 @@ docker run --name=redis --hostname=redis --network=sinatra-app-network -d redis
 
 #### Your image build is slow by default
 An easy win is to `bundle install` before you copy the rest of your app code. Else any change to app code will invalidate gem cache
+
+
+## Stage 3 - Docker compose the app
+### Honestly no gotchas, super simple, just works
