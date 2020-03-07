@@ -19,7 +19,6 @@ init () {
   ;;
   
   k8s)
-  Message="I'm drowning here!  There's a partition at $space %!"
   ;;
   
   esac

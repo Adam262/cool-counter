@@ -60,5 +60,24 @@ docker run --name=redis --hostname=redis --network=sinatra-app-network -d redis
 An easy win is to `bundle install` before you copy the rest of your app code. Else any change to app code will invalidate gem cache
 
 
-## Stage 3 - Docker compose the app
-### Honestly no gotchas, super simple, just works
+## Stage 4 - K8s-ify the app
+### Need to reuse local Docker daemon minikube
+* Do not attempt to pull images from Docker registry. Well you can if you set secrets
+* Thank you [savior](https://stackoverflow.com/questions/42564058/how-to-use-local-docker-images-with-minikube). Need to:
+- Set the Docker environment variables on your Minikube via `eval $(minikube docker-env)`
+- rebuild image with a tag, eg `docker build -t cool-tag .`
+- in Deployment or Pod spec, set `imagePullPolicy: Never`
+- reference image via its tag (not via registry)
+
+**web-deployment.yaml**
+```
+   spec:
+      containers:
+      - name: sinatra-app
+        image: sinatra-app
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4567
+```
+
+

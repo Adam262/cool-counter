@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: sinatra-app
+  name: sinatra-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sinatra-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sinatra-app
+    spec:
+      containers:
+      - name: sinatra-app
+        image: sinatra-app
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4567
