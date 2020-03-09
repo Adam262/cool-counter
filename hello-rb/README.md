@@ -59,7 +59,6 @@ docker run --name=redis --hostname=redis --network=sinatra-app-network -d redis
 #### Your image build is slow by default
 An easy win is to `bundle install` before you copy the rest of your app code. Else any change to app code will invalidate gem cache
 
-
 ## Stage 4 - K8s-ify the app
 ### Need to reuse local Docker daemon minikube
 * Do not attempt to pull images from Docker registry. Well you can if you set secrets
@@ -80,4 +79,27 @@ An easy win is to `bundle install` before you copy the rest of your app code. El
         - containerPort: 4567
 ```
 
+### How to get external IP to access?
+* minikube service command
 
+```
+# open a browser to the service's external URL
+# This is `minikube ip` + the port that you set in service config yaml 
+minikube service sinatra-app
+
+# but EXTERNAL-IP is pending
+k get svc -l app=sinatra-app
+``` 
+
+* minikube tunnel command
+
+```
+# in separate tab
+minikube tunnel
+
+# EXTERNAL-IP is set. Visit it
+k get svc -l app=sinatra-app
+
+# Sometimes minikube tunnel gets in a bad state and throws `conflicting route`
+minikube tunnel --cleanup
+``` 

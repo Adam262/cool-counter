@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: counter-web
+  labels:
+    app: counter-web
+spec:
+  selector:
+    app: counter-web
+  ports:
+    - protocol: TCP
+      port: 4567
+      targetPort: 4567
+  type: LoadBalancer

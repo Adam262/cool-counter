@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: counter-web
   labels:
-    app.kubernetes.io/name: sinatra-app
-  name: sinatra-app
+    app: counter-web
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app.kubernetes.io/name: sinatra-app
+      app: counter-web
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: sinatra-app
+        app: counter-web
     spec:
       containers:
-      - name: sinatra-app
-        image: sinatra-app
+      - name: counter-web
+        image: counter-web
         imagePullPolicy: Never
         ports:
         - containerPort: 4567
