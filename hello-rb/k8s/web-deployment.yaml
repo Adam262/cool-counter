@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: counter-web
+  name: cool-counter-web
   labels:
-    app: counter-web
+    app: cool-counter
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: counter-web
+      app: cool-counter
   template:
     metadata:
       labels:
-        app: counter-web
+        app: cool-counter
     spec:
       containers:
-      - name: counter-web
-        image: counter-web
+      - name: cool-counter
+        image: cool-counter
         imagePullPolicy: Never
         ports:
         - containerPort: 4567

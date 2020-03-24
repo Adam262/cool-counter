@@ -80,8 +80,8 @@ An easy win is to `bundle install` before you copy the rest of your app code. El
 ```
 
 ### How to get external IP to access?
-* minikube service command
-
+#### minikube service command or 
+Gets the kubernetes URL(s) for the specified service in your local cluster
 ```
 # open a browser to the service's external URL
 # This is `minikube ip` + the port that you set in service config yaml 
@@ -91,8 +91,8 @@ minikube service sinatra-app
 k get svc -l app=sinatra-app
 ``` 
 
-* minikube tunnel command
-
+#### minikube tunnel command
+tunnel makes services of type LoadBalancer accessible on localhost
 ```
 # in separate tab
 minikube tunnel
@@ -103,3 +103,24 @@ k get svc -l app=sinatra-app
 # Sometimes minikube tunnel gets in a bad state and throws `conflicting route`
 minikube tunnel --cleanup
 ``` 
+
+#### kind + ingress
+What is kind?
+* A K8s cluster that runs in a Docker container (KuberNetes In Docker)
+* Minikube needed its own VM, on top of the VM that Docker for Mac runs on. Kind runs on its own Docker container called `kind-control-plane`
+* Easy to use
+
+```
+docker build -t cool-tag .
+kind load docker-image cool-tag
+kubectl apply -f deployment-for-cool-tag.yaml
+```
+
+What is Ingress?
+* Ingress is a K8s resouce that exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource.
+
+Need two resouces:
+* Ingress
+* IngressController - via [Countour](https://projectcontour.io/)
+
+Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
