@@ -12,3 +12,7 @@ spec:
         backend:
           serviceName: cool-counter-web
           servicePort: 4567
+      - path: /hello
+        backend:
+          serviceName: cool-counter-web
+          servicePort: 4567

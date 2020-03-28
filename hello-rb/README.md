@@ -124,3 +124,13 @@ Need two resouces:
 * IngressController - via [Countour](https://projectcontour.io/)
 
 Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
+
+#### How to pass Redis Host
+##### Via env var
+* This approach works but has quirks, namely order dependency
+* You need to apply `redis-service` before anything else. 
+* Then apply `redis-deployment`
+* `k exec <pod-name> -- printenv` will show a system env var called `COOL_COUNTER_REDIS_SERVICE_HOST`
+* Then pass this to your `web-deployment`. It will override the `REDIS_HOST` env var set in your Dockerfile  
+
+##### Via DNS
