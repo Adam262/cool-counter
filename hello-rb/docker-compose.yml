@@ -2,8 +2,8 @@ version: '3'
 services:
   web:
     build: .
-    image: adam262/sinatra-app
-    container_name: sinatra-app
+    image: cool-counter
+    container_name: cool-counter
     ports:
       - "4567:4567"
   redis:

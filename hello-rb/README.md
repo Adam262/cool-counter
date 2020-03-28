@@ -22,6 +22,22 @@
 ### Key steps
 * Write docker-compose.yml
 
+## Stage 4 - K8s-ify app
+### Key steps
+* Plan architecture of K8s resources. You will need a deployment and a service for each of front-end (web-server) and back-end(redis)
+* Set up a kind K8s cluster locally
+* Deploy front-end and expose via service
+* Deploy ingress to expose app
+* Test via /ping
+* Deploy back-end and expose to front-end via service via env var
+* Test via /hello
+* Add DNS over back end?
+
+## Stage 5 - More ideas
+* Buildpacks (over Dockerfile)
+* Terraform or Helm (over init.sh)
+* Logging / momnitoring
+
 ### Gotchas
 #### You are probably missing a lot of system dependencies for gems, such as gcc 
 `bundle install` kept failing. I would shell into a failed build, bundle install again, see error logs and add
@@ -134,3 +150,4 @@ Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
 * Then pass this to your `web-deployment`. It will override the `REDIS_HOST` env var set in your Dockerfile  
 
 ##### Via DNS
+
