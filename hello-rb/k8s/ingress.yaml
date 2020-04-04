@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: example-ingress
+  name: cool-counter-ingress
   annotations:
-    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingressClassName: "nginx"
 spec:
   rules:
   - http:
@@ -12,7 +12,7 @@ spec:
         backend:
           serviceName: cool-counter-web
           servicePort: 4567
-      - path: /hello
+      - path: /
         backend:
           serviceName: cool-counter-web
-          servicePort: 4567
+          servicePort: 4567 

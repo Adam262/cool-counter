@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-init () {
+init() {
+  local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
+  
   case "$1" in
   build)
   docker build -t cool-counter .
@@ -24,14 +26,18 @@ init () {
   
   k8s)
     kind create cluster --config=k8s/cluster.yaml
+
     kind load docker-image cool-counter
     kind load docker-image redis
+    
     kubectl apply -f k8s/redis-service.yaml
     kubectl apply -f k8s/redis-deployment.yaml
     kubectl apply -f k8s/web-service.yaml
     kubectl apply -f k8s/web-deployment.yaml
-    kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
-    kubectl patch daemonsets -n projectcontour envoy -p '{"spec":{"template":{"spec":{"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}'
+    
+    kubectl apply -f "${nginx_url}/mandatory.yaml"
+    kubectl apply -f "${nginx_url}/provider/baremetal/service-nodeport.yaml"
+    kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p "$(cat k8s/nginx-patch.json)"
     kubectl apply -f k8s/ingress.yaml
   ;;
   

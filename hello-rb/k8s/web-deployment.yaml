@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: cool-counter-web
   labels:
-    app: cool-counter
+    app: cool-counter-web
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: cool-counter
+      app: cool-counter-web
   template:
     metadata:
       labels:
-        app: cool-counter
+        app: cool-counter-web
     spec:
       containers:
       - name: cool-counter

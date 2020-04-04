@@ -6,7 +6,7 @@ metadata:
     app: cool-counter
 spec:
   selector:
-    app: cool-counter
+    app: cool-counter-web
   ports:
     - protocol: TCP
       port: 4567

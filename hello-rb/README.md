@@ -137,7 +137,7 @@ What is Ingress?
 
 Need two resouces:
 * Ingress
-* IngressController - via [Countour](https://projectcontour.io/)
+* IngressController - via [Nginx](https://kubernetes.github.io/ingress-nginx/)
 
 Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
 
