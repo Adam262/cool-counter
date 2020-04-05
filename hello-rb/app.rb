@@ -46,7 +46,7 @@ class App < Sinatra::Application
   private
 
   def count
-    redis.get("count")
+    redis.get("count") || 0
   end
   
   def redis
