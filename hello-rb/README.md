@@ -30,13 +30,18 @@
 * Deploy ingress to expose app
 * Test via /ping
 * Deploy back-end and expose to front-end via service via env var
-* Test via /hello
-* Add DNS over back end?
+* Test via /
 
 ## Stage 5 - More ideas
+### Advanced K8s
+* K8s DNS
+* K8s namespaces
+* Multi node cluster
+
+### K8s tooling
 * Buildpacks (over Dockerfile)
 * Terraform or Helm (over init.sh)
-* Logging / momnitoring
+* Logging / monitoring
 
 ### Gotchas
 #### You are probably missing a lot of system dependencies for gems, such as gcc 
@@ -123,8 +128,19 @@ minikube tunnel --cleanup
 #### kind + ingress
 What is kind?
 * A K8s cluster that runs in a Docker container (KuberNetes In Docker)
-* Minikube needed its own VM, on top of the VM that Docker for Mac runs on. Kind runs on its own Docker container called `kind-control-plane`
 * Easy to use
+* Minikube needed its own VM, on top of the VM that Docker for Mac runs on. Kind runs on its own Docker container called `kind-control-plane`
+* Can have multiple nodes - more realistic. Minikube is a single master node
+  * Interesting to see how K8s distributes pods. Just 
+  ```
+k get nodes
+
+NAME                         STATUS   ROLES    AGE     VERSION
+cool-cluster-control-plane   Ready    master   5m6s    v1.17.0
+cool-cluster-worker          Ready    <none>   4m33s   v1.17.0
+
+k describe cool-cluster-control-plane
+  ```
 
 ```
 docker build -t cool-tag .
@@ -150,4 +166,23 @@ Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
 * Then pass this to your `web-deployment`. It will override the `REDIS_HOST` env var set in your Dockerfile  
 
 ##### Via DNS
+* Kubernetes 1.11 switched from `kube-dns` to `CoreDNS` by default
+```
+k get svc -n kube-system
+
+NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   19h
+```
+* View a pod's DNS entry:
+```
+k exec -it <some-pod> bash
+cat /etc/resolv.conf
+
+nameserver 1.2.3.4
+search default.svc.cluster.local svc.cluster.local cluster.local
+options ndots:2 edns0
+```
+
+* Now you can reliably refer to the hostname for pod via its service name, eg `cool-counter-redis.default.svc.cluster.local`
+* This approach is a nicer than the env var approach because you can refer to the DNS name before the service exists. There is no order dependency in creating your resources
 

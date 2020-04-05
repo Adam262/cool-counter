@@ -22,4 +22,4 @@ spec:
         - containerPort: 4567
         env:
           - name: REDIS_HOST
-            value: $(COOL_COUNTER_REDIS_SERVICE_HOST)
+            value: cool-counter-redis.default.svc.cluster.local
