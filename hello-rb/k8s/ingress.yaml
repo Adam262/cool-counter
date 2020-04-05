@@ -2,6 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: cool-counter-ingress
+  namespace: cool-namespace
   annotations:
     kubernetes.io/ingressClassName: "nginx"
 spec:

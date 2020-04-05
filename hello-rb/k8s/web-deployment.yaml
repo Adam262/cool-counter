@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cool-counter-web
+  namespace: cool-namespace
   labels:
     app: cool-counter-web
 spec:
@@ -22,4 +23,4 @@ spec:
         - containerPort: 4567
         env:
           - name: REDIS_HOST
-            value: cool-counter-redis.default.svc.cluster.local
+            value: cool-counter-redis.cool-namespace.svc.cluster.local

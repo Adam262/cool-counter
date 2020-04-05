@@ -42,6 +42,8 @@ init() {
     kind --name=cool-cluster load docker-image cool-counter
     kind --name=cool-cluster load docker-image redis
     
+    kubectl apply -f k8s/namespace.yaml
+    
     kubectl apply -f k8s/web-deployment.yaml
     kubectl apply -f k8s/web-service.yaml
     kubectl apply -f k8s/redis-deployment.yaml

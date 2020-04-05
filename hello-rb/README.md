@@ -131,7 +131,7 @@ What is kind?
 * Easy to use
 * Minikube needed its own VM, on top of the VM that Docker for Mac runs on. Kind runs on its own Docker container called `kind-control-plane`
 * Can have multiple nodes - more realistic. Minikube is a single master node
-  * Interesting to see how K8s distributes pods. Just 
+* Interesting to see how K8s distributes pods. Just 
   ```
 k get nodes
 
