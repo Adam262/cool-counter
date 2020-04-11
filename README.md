@@ -48,16 +48,17 @@
 `bundle install` kept failing. I would shell into a failed build, bundle install again, see error logs and add
 system libraries one at a time, eg:
 
-I tried: 
+I tried:
+
 ```
   docker images
   docker run -it <SHA of failed build> bash
   bundle install
-  ```
+```
+
 Finally it worked to add this to Dockerfile `RUN apt-get install -y build-essential`. It contains gcc, libc, make, etc - [see](https://packages.debian.org/sid/build-essential)
 
-#### You are also missing debugging tools such as `curl` and `telnet`
-* curl is not by default on Debian. Need to install it. Same for telnet
+You are also likely need to install debugging tools such as `curl` and `telnet`
 
 #### Nice to assign --name to docker container, else docker will give a random one, eg:
 ```
@@ -69,7 +70,6 @@ docker run --name=redis -d -p 6379:6379 redis
 * Step 1. Pulish your sinatra container's port via `docker run -p <host>:<container-port>`. This is so your localhost can talk to sinatra at a deterministic port
 * Step 2. Create a docker network and pass `docker run --network=<cool-network-name>` to each container. This is so your sinatra container and redis container expose ports to each other
 * Step 3. I really banged my head on giving Redis container a deterministic hostname.  The answer lies in (Docker networking docs) [https://docs.docker.com/config/containers/container-networking/]. So a container's hostname defaults to its container SHA. You can overide this with `docker run --hostname=redis`
-
 
 ```
 docker network create sinatra-app-network
@@ -84,24 +84,24 @@ An easy win is to `bundle install` before you copy the rest of your app code. El
 ### Need to reuse local Docker daemon minikube
 * Do not attempt to pull images from Docker registry. Well you can if you set secrets
 * Thank you [savior](https://stackoverflow.com/questions/42564058/how-to-use-local-docker-images-with-minikube). Need to:
-- Set the Docker environment variables on your Minikube via `eval $(minikube docker-env)`
-- rebuild image with a tag, eg `docker build -t cool-tag .`
-- in Deployment or Pod spec, set `imagePullPolicy: Never`
-- reference image via its tag (not via registry)
+* Set the Docker environment variables on your Minikube via `eval $(minikube docker-env)`
+* rebuild image with a tag, eg `docker build -t cool-tag .`
+* in Deployment or Pod spec, set `imagePullPolicy: Never`
+* reference image via its tag (not via registry)
 
 **web-deployment.yaml**
 ```
    spec:
       containers:
-      - name: sinatra-app
-        image: sinatra-app
+      - name: cool-counter
+        image: cool-counter
         imagePullPolicy: Never
         ports:
         - containerPort: 4567
 ```
 
 ### How to get external IP to access?
-#### minikube service command or 
+#### minikube service command 
 Gets the kubernetes URL(s) for the specified service in your local cluster
 ```
 # open a browser to the service's external URL
@@ -112,27 +112,16 @@ minikube service sinatra-app
 k get svc -l app=sinatra-app
 ``` 
 
-#### minikube tunnel command
-tunnel makes services of type LoadBalancer accessible on localhost
-```
-# in separate tab
-minikube tunnel
-
-# EXTERNAL-IP is set. Visit it
-k get svc -l app=sinatra-app
-
-# Sometimes minikube tunnel gets in a bad state and throws `conflicting route`
-minikube tunnel --cleanup
-``` 
-
 #### kind + ingress
 What is kind?
+
 * A K8s cluster that runs in a Docker container (KuberNetes In Docker)
 * Easy to use
 * Minikube needed its own VM, on top of the VM that Docker for Mac runs on. Kind runs on its own Docker container called `kind-control-plane`
 * Can have multiple nodes - more realistic. Minikube is a single master node
-* Interesting to see how K8s distributes pods. Just 
-  ```
+* Interesting to see how K8s distributes pods.
+
+```
 k get nodes
 
 NAME                         STATUS   ROLES    AGE     VERSION
@@ -140,7 +129,7 @@ cool-cluster-control-plane   Ready    master   5m6s    v1.17.0
 cool-cluster-worker          Ready    <none>   4m33s   v1.17.0
 
 k describe cool-cluster-control-plane
-  ```
+```
 
 ```
 docker build -t cool-tag .
@@ -149,30 +138,29 @@ kubectl apply -f deployment-for-cool-tag.yaml
 ```
 
 What is Ingress?
+
 * Ingress is a K8s resouce that exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource.
 
 Need two resouces:
+
 * Ingress
 * IngressController - via [Nginx](https://kubernetes.github.io/ingress-nginx/)
 
 Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
 
-#### How to pass Redis Host
+#### How does the web server talk to Redis?
 ##### Via env var
-* This approach works but has quirks, namely order dependency
-* You need to apply `redis-service` before anything else. 
-* Then apply `redis-deployment`
-* `k exec <pod-name> -- printenv` will show a system env var called `COOL_COUNTER_REDIS_SERVICE_HOST`
+* Remember we need to tell our web server the name of the Redis host
+* You can pass in the host name via a k8s-generated env var, in this case `COOL_COUNTER_REDIS_SERVICE_HOST`
+* This approach works but has quirks, namely order dependency. You need to apply `redis-service` before anything else. 
+* `k exec <some-web-pod-name> -- printenv` will show a system env var called `COOL_COUNTER_REDIS_SERVICE_HOST`
 * Then pass this to your `web-deployment`. It will override the `REDIS_HOST` env var set in your Dockerfile  
 
 ##### Via DNS
+* This approach is a nicer then the env var approach because you can refer to the DNS name before the service exists. There is no order dependency in creating your resources
+* K8s provides a deterministic DNS convention. Eg, lookup a service hostname by `<service-name>.<namespace>.svc.cluster.local`
 * Kubernetes 1.11 switched from `kube-dns` to `CoreDNS` by default
-```
-k get svc -n kube-system
 
-NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
-kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   19h
-```
 * View a pod's DNS entry:
 ```
 k exec -it <some-pod> bash
@@ -182,7 +170,3 @@ nameserver 1.2.3.4
 search default.svc.cluster.local svc.cluster.local cluster.local
 options ndots:2 edns0
 ```
-
-* Now you can reliably refer to the hostname for pod via its service name, eg `cool-counter-redis.default.svc.cluster.local`
-* This approach is a nicer than the env var approach because you can refer to the DNS name before the service exists. There is no order dependency in creating your resources
-
