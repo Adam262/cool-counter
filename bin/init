@@ -24,15 +24,14 @@ init() {
   docker-compose)
     docker-compose up -d
     docker-compose logs -f
-
     ;;
 
   docker-compose-down)
     docker-compose down
-
     ;;
   
   k8s)
+    # Create cluster + load images
     cluster=$(kind get clusters)
     if [[ $cluster == "cool-cluster" ]]; then
       echo 'using cluster "cool-cluster" ...'
@@ -45,15 +44,23 @@ init() {
 
     kubectl apply -f k8s/namespace.yaml
     
+    # Deploy web app
     kubectl apply -f k8s/web-deployment.yaml
     kubectl apply -f k8s/web-service.yaml
     kubectl apply -f k8s/redis-deployment.yaml
     kubectl apply -f k8s/redis-service.yaml
     
+    # Expose web app via ingress
     kubectl apply -f "${nginx_url}/mandatory.yaml"
     kubectl apply -f "${nginx_url}/provider/baremetal/service-nodeport.yaml"
     kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p "$(cat k8s/nginx-patch.json)"
     kubectl apply -f k8s/ingress.yaml
+
+    # Deploy Prometheus monitoring and expose UI via ingress
+    kubectl apply -f k8s/prometheus/namespace.yaml
+    helm install prometheus-operator stable/prometheus-operator -n monitoring
+    helm install prometheus-adapter stable/prometheus-adapter -n monitoring
+    kubectl apply -f k8s/prometheus/ingress.yaml
     ;;
 
   k8s-down)
