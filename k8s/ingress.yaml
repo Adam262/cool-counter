@@ -6,6 +6,10 @@ metadata:
   annotations:
     kubernetes.io/ingressClassName: "nginx"
 spec:
-  backend:
-    serviceName: cool-counter-web
-    servicePort: 4567
+  rules:
+  - host: cool-counter.localhost
+    http:
+      paths:
+      - backend:
+          serviceName: cool-counter-web
+          servicePort: 4567    
