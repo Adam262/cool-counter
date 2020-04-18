@@ -2,14 +2,14 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: cool-counter-ingress
-  namespace: cool-namespace
+  namespace: monitoring
   annotations:
     kubernetes.io/ingressClassName: "nginx"
 spec:
-  rules:
-  - host: cool-counter.localhost
+  rules:  
+  - host: metrics.cool-counter.localhost
     http:
       paths:
       - backend:
-          serviceName: cool-counter-web
-          servicePort: 4567    
+          serviceName: prometheus-operator-prometheus
+          servicePort: 9090
