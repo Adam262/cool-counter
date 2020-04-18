@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euxo pipefail
 
 init() {
   local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
@@ -21,27 +22,27 @@ init() {
     ;;
   
   docker-compose)
-    if [[ $2 == "down" ]]; then
-      docker-compose down
-      exit 0
-    fi  
-
     docker-compose up -d
     docker-compose logs -f
 
     ;;
+
+  docker-compose-down)
+    docker-compose down
+
+    ;;
   
   k8s)
-    if [[ $2 == "down" ]]; then
-      kind delete cluster --name=cool-cluster
-      exit 0
-    fi 
-
-    kind create cluster --config=k8s/cluster.yaml --name=cool-cluster
-
-    kind --name=cool-cluster load docker-image cool-counter
-    kind --name=cool-cluster load docker-image redis
+    cluster=$(kind get clusters)
+    if [[ $cluster == "cool-cluster" ]]; then
+      echo 'using cluster "cool-cluster" ...'
+    else
+      kind create cluster --config=k8s/cluster.yaml --name=cool-cluster
+    fi
     
+    kind --name=cool-cluster load docker-image cool-counter
+    kind --name=cool-cluster load docker-image redis    
+
     kubectl apply -f k8s/namespace.yaml
     
     kubectl apply -f k8s/web-deployment.yaml
@@ -53,6 +54,10 @@ init() {
     kubectl apply -f "${nginx_url}/provider/baremetal/service-nodeport.yaml"
     kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p "$(cat k8s/nginx-patch.json)"
     kubectl apply -f k8s/ingress.yaml
+    ;;
+
+  k8s-down)
+    kind delete cluster --name=cool-cluster
     ;;
   
   esac
