@@ -1,6 +1,5 @@
 # Adding monitoring via Prometheus
 
-# Architecture
 ## K8s metrics registry
 K8s has the concept of a central metrics registry that we can use to query stats within a K8s resources. For example, it can be 
 used as a scaling metric within Horizontal Pod Autoscalers.
