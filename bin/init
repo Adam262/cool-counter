@@ -3,36 +3,58 @@ set -euxo pipefail
 
 init() {
   local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
+  local action=$1
+  local down=${2:-""}
 
-  case $1 in
+  case $action in
 
   build)
     docker build -t cool-counter .
     ;;
 
   local)
+    if [[ ! -z "$down" ]]; then
+      local process_id=$(ps aux | grep "bin/rackup -p 4567" | grep -v "grep" | awk '{ print $2}')
+      
+      brew services stop redis
+      kill $process_id
+
+      exit 0
+    fi
+
     brew services start redis
-    rackup -p 4567
+    bundle exec rackup -p 4567
     ;;
 
   docker)
-    network=cool-counter-network
+    local network=cool-counter-network
+
     docker run --name=web --network=$network -d -p 4567:4567 cool-counter
     docker run --name=redis --hostname=redis --network=$network -d redis
     ;;
   
   docker-compose)
+    if [[ ! -z "$down" ]]; then
+      docker-compose down
+      
+      exit 0
+    fi
+
     docker-compose up -d
     docker-compose logs -f
     ;;
-
-  docker-compose-down)
-    docker-compose down
-    ;;
   
   k8s)
+    if [[ ! -z "$down" ]]; then
+      kubectl delete namespace cool-namespace
+      kubectl delete namespace monitoring
+      
+      exit 0
+    fi
+
     # Create cluster + load images
-    cluster=$(kind get clusters)
+    local cluster=$(kind get clusters)
+
     if [[ $cluster == "cool-cluster" ]]; then
       echo 'using cluster "cool-cluster" ...'
     else
@@ -62,11 +84,6 @@ init() {
     helm install prometheus-adapter stable/prometheus-adapter -n monitoring
     kubectl apply -f k8s/prometheus/ingress.yaml
     ;;
-
-  k8s-down)
-    kind delete cluster --name=cool-cluster
-    ;;
-  
   esac
 }
 
