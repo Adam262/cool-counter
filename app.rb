@@ -5,6 +5,7 @@ require 'sass/plugin/rack'
 require 'redis'
 require 'json'
 require 'thin'
+require 'prometheus/client'
 
 class App < Sinatra::Application
   use Sass::Plugin::Rack
@@ -14,6 +15,13 @@ class App < Sinatra::Application
 
   set :bind, '0.0.0.0'
 
+  def initialize
+    @prometheus = Prometheus::Client.registry
+    @prometheus.register(http_requests)
+
+    super
+  end
+  
   get '/' do
     @count=count
 
@@ -39,16 +47,22 @@ class App < Sinatra::Application
       redis.set("count", 0)
     end
 
+    http_requests.increment
     status 200
     { count: count }.to_json
   end
 
   private
 
+  def http_requests
+    @http_requests ||= Prometheus::Client::Counter.
+      new(:http_requests, docstring: 'A counter of HTTP requests to the /update endpoint')
+  end
+  
   def count
     redis.get("count") || 0
   end
-  
+
   def redis
     @redis ||= Redis.new(host: redis_host, port: 6379)
   end 

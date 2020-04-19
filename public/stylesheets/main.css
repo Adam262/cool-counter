@@ -14,8 +14,8 @@ h1 {
 .button-container {
   border: 3px solid #567568;
   border-radius: 15px;
-  padding: 20px;
-  width: 60%;
+  padding: 20px 0;
+  width: 50%;
   margin: auto; }
 
 .flex-container {

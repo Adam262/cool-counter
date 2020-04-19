@@ -22,8 +22,8 @@ h1 {
 .button-container {
   border: 3px solid $dark-green;
   border-radius: 15px;
-  padding: 20px; 
-  width: 60%;
+  padding: 20px 0; 
+  width: 50%;
   margin: auto; 
 }
 
@@ -42,6 +42,3 @@ button {
   &#plus-button { background-color: $light-green; }
   &#minus-button { background-color: $rose; }
 }
-
-
-
