@@ -1,5 +1,0 @@
-groups:
-- name: cool_counter
-  rules:
-  - record: cool_counter:http_requests:avg_rate10s
-    expr: rate(http_requests{job="cool_counter"}[10s])

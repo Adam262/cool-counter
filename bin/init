@@ -2,6 +2,8 @@
 set -euxo pipefail
 
 init() {
+  pushd $(dirname $0)
+
   local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
   local action=$1
   local down=${2:-""}
@@ -14,15 +16,18 @@ init() {
 
   local)
     if [[ ! -z "$down" ]]; then
-      local process_id=$(ps aux | grep "bin/rackup -p 4567" | grep -v "grep" | awk '{ print $2}')
-      
+      kill $(pgrep prometheus)
+      kill $(pgrep rackup)
       brew services stop redis
-      kill $process_id
+      rm -r ../bin/data
 
       exit 0
     fi
 
+    ../local-monitoring/prometheus --config.file=../local-monitoring/prometheus.yml &
     brew services start redis
+    popd
+
     bundle exec rackup -p 4567
     ;;
 
@@ -48,7 +53,7 @@ init() {
     if [[ ! -z "$down" ]]; then
       kubectl delete namespace cool-namespace
       kubectl delete namespace monitoring
-      
+      kubectl delete psp --all
       exit 0
     fi
 
