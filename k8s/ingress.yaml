@@ -1,16 +1,11 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: cool-counter-ingress
   namespace: cool-namespace
   annotations:
     kubernetes.io/ingressClassName: "nginx"
-  spec:
-    rules:
-    - host: cool-counter.localhost
-      http:
-        paths:
-        - backend:
-            serviceName: cool-counter-web
-            servicePort: 4567
-                
+spec:
+  backend:
+    serviceName: cool-counter-web
+    servicePort: 4567

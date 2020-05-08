@@ -4,9 +4,8 @@ set -euo pipefail
 [[ -n "${DEBUG-}" ]] && set -x
 
 init() {
-  local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
   local action=$1
-  local down=${2:-""}
+  local option=${2:-""}
   local redis_version="redis:5.0.9-alpine3.11@sha256:3ab6896b5efe215c5cc110a835fecb73d5f55672ad4443f4baf51822db1854c6"
 
   case $action in
@@ -16,7 +15,7 @@ init() {
     ;;
 
   local)
-    if [[ ! -z "$down" ]]; then
+    if [[ $option == "down" ]]; then
       kill $(pgrep rackup)
       brew services stop redis
 
@@ -32,7 +31,7 @@ init() {
   docker)
     local network=cool-counter-network
     
-    if [[ ! -z "$down" ]]; then
+    if [[ $option == "down" ]]; then
       docker stop redis
       docker rm redis
 
@@ -47,14 +46,14 @@ init() {
     docker_check_or_pull $redis_version
     docker_check_or_create_network $network
     
-    docker run --name=web --network=$network -d -p 4567:4567 cool-counter
-    docker run --name=redis --hostname=redis --network=$network -d redis
+    docker run --name=web --network=$network -p 4567:4567 -d  cool-counter
+    docker run --name=redis --network=$network --hostname=redis -d redis
 
     docker logs -f web
     ;;
   
   docker-compose)
-    if [[ ! -z "$down" ]]; then
+    if [[ $option == "down" ]]; then
       docker-compose down
       
       exit 0
@@ -66,24 +65,33 @@ init() {
     ;;
   
   k8s)
-    if [[ ! -z "$down" ]]; then
-      kubectl delete namespace cool-namespace
+    local cluster_name="cool-cluster"
+    local namespace="cool-namespace"
+    local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
+
+    if [[ $option == "down-namespace" ]]; then
+      kubectl delete namespace $namespace
+      exit 0
+    fi    
+
+    if [[ $option == "down-cluster" ]]; then
+      kind delete cluster --name=$cluster_name
       exit 0
     fi
 
     docker_check_or_pull $redis_version
     
     # Create cluster + load images
-    local cluster=$(kind get clusters)
+    local cluster=$(kind get clusters | grep $cluster_name)
 
-    if [[ $cluster == "cool-cluster" ]]; then
-      echo 'using cluster "cool-cluster" ...'
+    if [[ $cluster ]]; then
+      echo "using cluster $cluster_name ..."
     else
-      kind create cluster --config=k8s/cluster.yaml --name=cool-cluster
+      kind create cluster --config=k8s/cluster.yaml --name=$cluster_name
     fi
     
-    kind --name=cool-cluster load docker-image cool-counter
-    kind --name=cool-cluster load docker-image redis    
+    kind --name=$cluster_name load docker-image cool-counter
+    kind --name=$cluster_name load docker-image redis    
 
     kubectl apply -f k8s/namespace.yaml
     

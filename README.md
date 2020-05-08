@@ -2,6 +2,8 @@
 
 #### A simple Sinatra app that teaches you about Docker, Docker Compose and Kubernetes
 
+![Cool Counter](https://github.com/Adam262/cool-counter/blob/master/landing-image.png?raw=true)
+
 ## Overview
 Cool Counter is a simple Sinatra web app. What it does is pretty inconsequential - you increment or decrement a counter, with the count persisted to a Redis database. 
 The real purpose of this repo is to show how to run Cool Counter in 4 ways:
@@ -62,7 +64,7 @@ Commands
 # Start the app
 ./init.sh docker
 
-# Stop the app 
+# Stop the app
 ./init.sh docker down
 
 ```
@@ -75,7 +77,7 @@ Commands
 ./init.sh build
 
 # Start the app
-./init.sh docker-compose up
+./init.sh docker-compose
 
 # Stop the app 
 ./init.sh docker-compose down
@@ -83,7 +85,7 @@ Commands
 ```
 
 #### Via Kubernetes on a local cluster
-The app runs on cool-counter.localhost
+The app runs on localhost
 
 Commands
 ```
@@ -91,10 +93,13 @@ Commands
 ./init.sh build
 
 # Start the app
-./init.sh k8s up
+./init.sh k8s
 
-# Stop the app 
-./init.sh k8s down
+# Stop the app (by deleting namespace and all K8s resources)
+./init.sh k8s down-namespace
+
+# Stop the app (by additionally deleting cluster)
+./init.sh k8s down-cluster
 
 ```
 
