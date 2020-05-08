@@ -3,11 +3,9 @@ kind: Service
 metadata:
   name: cool-counter-redis
   namespace: cool-namespace
-  labels:
-    app: cool-counter-redis
 spec:
   ports:
   - port: 6379
     targetPort: 6379
   selector:
-    app: cool-counter-redis
+    pod: cool-counter-redis

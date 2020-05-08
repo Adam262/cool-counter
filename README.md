@@ -9,18 +9,18 @@ Cool Counter is a simple Sinatra web app. What it does is pretty inconsequential
 The real purpose of this repo is to show how to run a simple service-oriented application in 4 ways:
 
 * locally on a Mac
-* as Docker containers
-* via Docker-Compose
-* via Kubernetes, running on a local cluster
+* as [Docker](https://docs.docker.com/) containers
+* via [Docker-Compose](https://docs.docker.com/compose/)
+* via [Kubernetes (K8s)](https://kubernetes.io/docs/home/), running on a local multi-node cluster.
 
 This README shows the quick and dirty on installing and running Cool Counter. For a lot more detail on the project, consult [LESSONS_LEARNED](https://github.com/Adam262/cool-counter/blob/master/LESSONS_LEARNED.md).
 
 ### Getting Started
 Please set up the following dependencies before attempting to use Cool Counter.
 
-Git clone this repo 
+Git clone this repo (run subsequent commands from within repo)
 ```
-git@github.com:Adam262/cool-counter.git cool-counter && cd $_
+git clone git@github.com:Adam262/cool-counter.git cool-counter && cd $_
 
 ```
 
@@ -31,12 +31,12 @@ Docker Desktop for Mac (development environment for working with containers):
 ASDF (system wide version and dependency manager):
 
 * install [asdf version manager](https://github.com/asdf-vm/asdf)
-* run `asdf install`
+* run `asdf install` 
 
 Bundler (package managment for Ruby apps):
 
 * install `bundler` via `gem install bundler`
-* run `bundle install`
+* run `bundle install` 
 
 ### Running Cool Counter
 
@@ -110,12 +110,12 @@ DEBUG=true ./init.sh k8s up
 ```
 
 ### Next Steps
-There are a ton of technologies I could apply here. All are used at my job, although I haven't nececessarily gotten in the weeds of implementing them at work. So could learn a lot.
+There are a ton of technologies I could apply here. We use them at work, although I haven't necessarily gotten in the weeds for all of them. So could learn a lot.
 
 Some examples:
 
 * [Buildpacks](https://buildpacks.io/). A higher-level abstraction over a Dockerfile
-* [Prometheus](https://prometheus.io/). Monitoring tool. I have an open PR to add monitoring at all steps via Prometheus. 
-* [Helm](https://helm.sh/). Package manager for Kubenetes. For example, I would install Prometheus to my cluster via Helm. 
-* [Horizontal Pod Autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/). This is a native K8s feature that would allow the app to scale the number of
-web containers based on the value of a metric (ingested from Prometheus). 
+* [Prometheus](https://prometheus.io/). A monitoring tool. I have an open PR to add monitoring at all steps via Prometheus. 
+* [Helm](https://helm.sh/). The standard chart (package) manager for Kubenetes. For example, there are stable helm charts you can use to install Prometheus to a K8s cluster. The charts follow a common vendor pattern of creating custom K8s resources that work alongside core K8s resources and respond to common K8s commands
+* [Horizontal Pod Autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/). A native K8s feature that would allow the app to scale the number of
+web containers up and down - automatically - based on the value of a metric (ingested from Prometheus). 

@@ -3,11 +3,9 @@ kind: Service
 metadata:
   name: cool-counter-web
   namespace: cool-namespace
-  labels:
-    app: cool-counter
 spec:
   selector:
-    app: cool-counter-web
+    pod: cool-counter-web
   ports:
     - protocol: TCP
       port: 4567

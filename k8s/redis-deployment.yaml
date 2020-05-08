@@ -3,16 +3,14 @@ kind: Deployment
 metadata:
   name: cool-counter-redis
   namespace: cool-namespace
-  labels:
-    app: cool-counter-redis
 spec:
   selector:
     matchLabels:
-      app: cool-counter-redis
+      pod: cool-counter-redis
   template:
     metadata:
       labels:
-        app: cool-counter-redis
+        pod: cool-counter-redis
     spec:
       containers:
       - name: redis
