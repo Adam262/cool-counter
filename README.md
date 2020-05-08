@@ -26,7 +26,6 @@ git@github.com:Adam262/cool-counter.git cool-counter && cd $_
 Docker Desktop for Mac (development environment for working with containers):
 
 * install [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
-* install Redis image via `docker pull redis`
 
 ASDF (system wide version and dependency manager):
 

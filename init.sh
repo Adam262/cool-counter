@@ -7,6 +7,7 @@ init() {
   local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
   local action=$1
   local down=${2:-""}
+  local redis_version="redis:5.0.9-alpine3.11@sha256:3ab6896b5efe215c5cc110a835fecb73d5f55672ad4443f4baf51822db1854c6"
 
   case $action in
 
@@ -30,9 +31,26 @@ init() {
 
   docker)
     local network=cool-counter-network
+    
+    if [[ ! -z "$down" ]]; then
+      docker stop redis
+      docker rm redis
 
+      docker stop web
+      docker rm web
+
+      docker network rm $network
+
+      exit 0
+    fi
+
+    docker_check_or_pull $redis_version
+    docker_check_or_create_network $network
+    
     docker run --name=web --network=$network -d -p 4567:4567 cool-counter
     docker run --name=redis --hostname=redis --network=$network -d redis
+
+    docker logs -f web
     ;;
   
   docker-compose)
@@ -42,6 +60,7 @@ init() {
       exit 0
     fi
 
+    docker_check_or_pull $redis_version
     docker-compose up -d
     docker-compose logs -f
     ;;
@@ -52,6 +71,8 @@ init() {
       exit 0
     fi
 
+    docker_check_or_pull $redis_version
+    
     # Create cluster + load images
     local cluster=$(kind get clusters)
 
@@ -82,13 +103,34 @@ init() {
 }
 
 brew_check_or_install() {
-  package=$1
+  local package=$1
 
   if brew ls --versions $package > /dev/null; then 
     echo "$package is installed"
   else
     echo "Installing $package..."
     brew install $package
+  fi
+}
+
+docker_check_or_pull() {
+  local redis_version=$1
+
+  if docker inspect $redis_version > /dev/null; then
+    echo "$redis_version is installed"
+  else 
+    docker pull $redis_version 
+  fi
+}
+
+docker_check_or_create_network() {
+  local network=$1
+
+  if docker network inspect $network > /dev/null; then
+    echo "network $network exists"
+  else 
+    echo "creating network $network..."
+    docker network create $network
   fi
 }
 
