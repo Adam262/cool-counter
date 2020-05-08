@@ -1,172 +1,118 @@
-# Journey from running an app on local server to Docker to K8s
+# Cool Counter
 
-## Stage 1 - Sinatra + Redis on MacOS
-### Key steps
-* run Redis locally
-* run Sinatra server
+#### A simple Sinatra app that teaches you about Docker, Docker Compose and Kubernetes
 
-### Gotchas
-* making Sinatra run in modular form so you can have private methods
-* getting SASS to work on Sinatra
-* running JS on Sinatra (ES^ Fetch API FTW)
+## Overview
+Cool Counter is a simple Sinatra web app. What it does is pretty inconsequential - you increment or decrement a counter, with the count persisted to a Redis database. 
+The real purpose of this repo is to show how to run Cool Counter in 4 ways:
 
-## Stage 2 - Dockerize app
-### Key steps
-* run Docker for Mac
-* write Docker image for your Sinatra app
-* pull Redis image
-* get app to talk to Redis
-* optimize Docker image
+* locally on a Mac
+* as Docker containers
+* via Docker-Compose
+* via Kubernetes, running on a local cluster
 
-## Stage 3 - Docker Compose app
-### Key steps
-* Write docker-compose.yml
+This README shows the quick and dirty on installing and running Cool Counter. For the detailed lessons I learned along the way,
+consult LESSONS_LEARNED.md.
 
-## Stage 4 - K8s-ify app
-### Key steps
-* Plan architecture of K8s resources. You will need a deployment and a service for each of front-end (web-server) and back-end(redis)
-* Set up a kind K8s cluster locally
-* Deploy front-end and expose via service
-* Deploy ingress to expose app
-* Test via /ping
-* Deploy back-end and expose to front-end via service via env var
-* Test via /
+### Getting Started
+Please set up the following dependencies before attempting to use Cool Counter.
 
-## Stage 5 - More ideas
-### Advanced K8s
-* K8s DNS
-* K8s namespaces
-* Multi node cluster
-
-### K8s tooling
-* Buildpacks (over Dockerfile)
-* Terraform or Helm (over init.sh)
-* Logging / monitoring
-
-### Gotchas
-#### You are probably missing a lot of system dependencies for gems, such as gcc 
-`bundle install` kept failing. I would shell into a failed build, bundle install again, see error logs and add
-system libraries one at a time, eg:
-
-I tried:
+Git clone this repo 
+```
+git@github.com:Adam262/cool-counter.git cool-counter && cd $_
 
 ```
-  docker images
-  docker run -it <SHA of failed build> bash
-  bundle install
+
+Docker Desktop for Mac (development environment for working with containers):
+
+* install [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
+* install Redis image via `docker pull redis`
+
+ASDF (system wide version and dependency manager):
+
+* install [asdf version manager](https://github.com/asdf-vm/asdf)
+* run `asdf install`
+
+Bundler (package managment for Ruby apps):
+
+* install `bundler` via `gem install bundler`
+* run `bundle install`
+
+### Running Cool Counter
+
+#### Locally
+The app runs on localhost:4567
+
+Commands
 ```
+# Start the app
+./init.sh local
 
-Finally it worked to add this to Dockerfile `RUN apt-get install -y build-essential`. It contains gcc, libc, make, etc - [see](https://packages.debian.org/sid/build-essential)
-
-You are also likely need to install debugging tools such as `curl` and `telnet`
-
-#### Nice to assign --name to docker container, else docker will give a random one, eg:
-```
-docker run --name=sinatra-app -d -p 4567:4567 adam262/sinatra-app
-docker run --name=redis -d -p 6379:6379 redis
-``` 
-
-#### Getting one container to talk to another and to your localhost is ... hard (without docker-compose or K8s)
-* Step 1. Pulish your sinatra container's port via `docker run -p <host>:<container-port>`. This is so your localhost can talk to sinatra at a deterministic port
-* Step 2. Create a docker network and pass `docker run --network=<cool-network-name>` to each container. This is so your sinatra container and redis container expose ports to each other
-* Step 3. I really banged my head on giving Redis container a deterministic hostname.  The answer lies in (Docker networking docs) [https://docs.docker.com/config/containers/container-networking/]. So a container's hostname defaults to its container SHA. You can overide this with `docker run --hostname=redis`
-
-```
-docker network create sinatra-app-network
-docker run --name=sinatra-app --network=sinatra-app-network -d -p 4567:4567 adam262/sinatra-app
-docker run --name=redis --hostname=redis --network=sinatra-app-network -d redis
-```
-
-#### Your image build is slow by default
-An easy win is to `bundle install` before you copy the rest of your app code. Else any change to app code will invalidate gem cache
-
-## Stage 4 - K8s-ify the app
-### Need to reuse local Docker daemon minikube
-* Do not attempt to pull images from Docker registry. Well you can if you set secrets
-* Thank you [savior](https://stackoverflow.com/questions/42564058/how-to-use-local-docker-images-with-minikube). Need to:
-* Set the Docker environment variables on your Minikube via `eval $(minikube docker-env)`
-* rebuild image with a tag, eg `docker build -t cool-tag .`
-* in Deployment or Pod spec, set `imagePullPolicy: Never`
-* reference image via its tag (not via registry)
-
-**web-deployment.yaml**
-```
-   spec:
-      containers:
-      - name: cool-counter
-        image: cool-counter
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 4567
-```
-
-### How to get external IP to access?
-#### minikube service command 
-Gets the kubernetes URL(s) for the specified service in your local cluster
-```
-# open a browser to the service's external URL
-# This is `minikube ip` + the port that you set in service config yaml 
-minikube service sinatra-app
-
-# but EXTERNAL-IP is pending
-k get svc -l app=sinatra-app
-``` 
-
-#### kind + ingress
-What is kind?
-
-* A K8s cluster that runs in a Docker container (KuberNetes In Docker)
-* Easy to use
-* Minikube needed its own VM, on top of the VM that Docker for Mac runs on. Kind runs on its own Docker container called `kind-control-plane`
-* Can have multiple nodes - more realistic. Minikube is a single master node
-* Interesting to see how K8s distributes pods.
+# Stop the app 
+./init.sh local down
 
 ```
-k get nodes
+#### Via pure Docker containers
+The app runs on localhost:4567
 
-NAME                         STATUS   ROLES    AGE     VERSION
-cool-cluster-control-plane   Ready    master   5m6s    v1.17.0
-cool-cluster-worker          Ready    <none>   4m33s   v1.17.0
+Commands
+```
+# Build the Docker image (only if not built in another step)
+./init.sh build
 
-k describe cool-cluster-control-plane
+# Start the app
+./init.sh docker
+
+# Stop the app 
+./init.sh docker down
+
+```
+#### Via Docker compose
+The app runs on localhost:4567
+
+Commands
+```
+# Build the Docker image (only if not built in another step)
+./init.sh build
+
+# Start the app
+./init.sh docker-compose up
+
+# Stop the app 
+./init.sh docker-compose down
+
 ```
 
+#### Via Kubernetes on a local cluster
+The app runs on cool-counter.localhost
+
+Commands
 ```
-docker build -t cool-tag .
-kind load docker-image cool-tag
-kubectl apply -f deployment-for-cool-tag.yaml
+# Build the Docker image (only if not built in another step)
+./init.sh build
+
+# Start the app
+./init.sh k8s up
+
+# Stop the app 
+./init.sh k8s down
+
 ```
 
-What is Ingress?
+#### Debugging
+Any init script command can be prefaced with `DEBUG=true`. This is will cause bash to log commands before executing them, including expanded arguments. For example:
 
-* Ingress is a K8s resouce that exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource.
-
-Need two resouces:
-
-* Ingress
-* IngressController - via [Nginx](https://kubernetes.github.io/ingress-nginx/)
-
-Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
-
-#### How does the web server talk to Redis?
-##### Via env var
-* Remember we need to tell our web server the name of the Redis host
-* You can pass in the host name via a k8s-generated env var, in this case `COOL_COUNTER_REDIS_SERVICE_HOST`
-* This approach works but has quirks, namely order dependency. You need to apply `redis-service` before anything else. 
-* `k exec <some-web-pod-name> -- printenv` will show a system env var called `COOL_COUNTER_REDIS_SERVICE_HOST`
-* Then pass this to your `web-deployment`. It will override the `REDIS_HOST` env var set in your Dockerfile  
-
-##### Via DNS
-* This approach is a nicer then the env var approach because you can refer to the DNS name before the service exists. There is no order dependency in creating your resources
-* K8s provides a deterministic DNS convention. Eg, lookup a service hostname by `<service-name>.<namespace>.svc.cluster.local`
-* Kubernetes 1.11 switched from `kube-dns` to `CoreDNS` by default
-
-* View a pod's DNS entry:
 ```
-k exec -it <some-pod> bash
-cat /etc/resolv.conf
-
-nameserver 1.2.3.4
-search default.svc.cluster.local svc.cluster.local cluster.local
-options ndots:2 edns0
+DEBUG=true ./init.sh k8s up
 ```
+
+### Next Steps
+There are a ton of technologies I could apply here. All are used at my job, although I haven't nececessarily gotten in the weeds of implementing them at work. So could learn a lot.
+
+Some examples:
+
+* [Buildpacks](https://buildpacks.io/). A higher-level abstraction over a Dockerfile
+* [Prometheus](https://prometheus.io/). Monitoring tool. I have an open PR to add monitoring at all steps via Prometheus. 
+* [Helm](https://helm.sh/). Package manager for Kubenetes. For example, I would install Prometheus to my cluster via Helm. 
+* [Horizontal Pod Autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/). This is a native K8s feature that would allow the app to scale the number of
+web containers based on the value of a metric (ingested from Prometheus). 

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+ingress_ip=$(kubectl get ingress -n cool-namespace | awk '{ print $3 }' | tail -1)
+
+sudo tee -a sudo tee -a /etc/hosts <<EOF
+$ingress_ip cool-counter.localhost
+EOF

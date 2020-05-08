@@ -10,3 +10,5 @@ gem 'sass'
 gem 'redis'
 gem 'json'
 gem 'thin'
+gem "pry"
+gem "pry-byebug"
