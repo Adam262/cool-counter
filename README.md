@@ -4,17 +4,16 @@
 
 ![Cool Counter](https://github.com/Adam262/cool-counter/blob/master/landing-image.png?raw=true)
 
-## Overview
+### Overview
 Cool Counter is a simple Sinatra web app. What it does is pretty inconsequential - you increment or decrement a counter, with the count persisted to a Redis database. 
-The real purpose of this repo is to show how to run Cool Counter in 4 ways:
+The real purpose of this repo is to show how to run a simple service-oriented application in 4 ways:
 
 * locally on a Mac
 * as Docker containers
 * via Docker-Compose
 * via Kubernetes, running on a local cluster
 
-This README shows the quick and dirty on installing and running Cool Counter. For the detailed lessons I learned along the way,
-consult LESSONS_LEARNED.md.
+This README shows the quick and dirty on installing and running Cool Counter. For a lot more detail on the project, consult [LESSONS_LEARNED](https://github.com/Adam262/cool-counter/blob/master/LESSONS_LEARNED.md).
 
 ### Getting Started
 Please set up the following dependencies before attempting to use Cool Counter.
