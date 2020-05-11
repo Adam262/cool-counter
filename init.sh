@@ -43,6 +43,7 @@ init() {
       exit 0
     fi
 
+    docker_check_or_build cool-counter
     docker_check_or_pull $redis_version
     docker_check_or_create_network $network
     
@@ -59,7 +60,9 @@ init() {
       exit 0
     fi
 
+    docker_check_or_build cool-counter
     docker_check_or_pull $redis_version
+
     docker-compose up -d
     docker-compose logs -f
     ;;
@@ -69,7 +72,7 @@ init() {
     local namespace="cool-namespace"
     local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
 
-    if [[ $option == "down-namespace" ]]; then
+    if [[ $option == "down" ]]; then
       kubectl delete namespace $namespace
       exit 0
     fi    
@@ -79,6 +82,7 @@ init() {
       exit 0
     fi
 
+    docker_check_or_build cool-counter
     docker_check_or_pull $redis_version
     
     # Create cluster + load images
@@ -125,9 +129,20 @@ docker_check_or_pull() {
   local redis_version=$1
 
   if docker inspect $redis_version > /dev/null; then
-    echo "$redis_version is installed"
+    echo "Image $redis_version is installed"
   else 
     docker pull $redis_version 
+  fi
+}
+
+docker_check_or_build() {
+  local tag=$1
+
+  if docker inspect $tag > /dev/null; then
+    echo "Image $tag is installed"
+  else 
+    docker build -t $tag .
+    echo "Building image $tag..."
   fi
 }
 
@@ -135,9 +150,9 @@ docker_check_or_create_network() {
   local network=$1
 
   if docker network inspect $network > /dev/null; then
-    echo "network $network exists"
+    echo "Network $network exists"
   else 
-    echo "creating network $network..."
+    echo "Creating network $network..."
     docker network create $network
   fi
 }

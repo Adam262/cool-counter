@@ -1,4 +1,7 @@
 .git
 .sass-cache
+
 dump.rdb
 bin/data/*
+
+README.html

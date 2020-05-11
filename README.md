@@ -16,27 +16,54 @@ The real purpose of this repo is to show how to run a simple service-oriented ap
 This README shows the quick and dirty on installing and running Cool Counter. For a lot more detail on the project, consult [LESSONS_LEARNED](https://github.com/Adam262/cool-counter/blob/master/LESSONS_LEARNED.md).
 
 ### Getting Started
-Please set up the following dependencies before attempting to use Cool Counter.
+Please set up the following dependencies before attempting to use Cool Counter:
 
-Git clone this repo (run subsequent commands from within repo)
+* Git clone this repo (run subsequent commands from within repo)
+
 ```
 git clone git@github.com:Adam262/cool-counter.git cool-counter && cd $_
 
 ```
 
-Docker Desktop for Mac (development environment for working with containers):
+* install [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/), a local environment for working with Docker containers
 
-* install [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
+* install [ASDF](https://github.com/asdf-vm/asdf), a system wide version and dependency manager
 
-ASDF (system wide version and dependency manager):
+* install ASDF plugins and packages needed for this app
+```
+asdf plugin add kind
+asdf plugin add kubectl
+asdf plugin add ruby
 
-* install [asdf version manager](https://github.com/asdf-vm/asdf)
-* run `asdf install` 
+asdf install
+``` 
 
-Bundler (package managment for Ruby apps):
+* install Bundler, a package manager for Ruby apps and the gems needed to run this app locally
 
-* install `bundler` via `gem install bundler`
-* run `bundle install` 
+```
+gem install bundler
+bundle install 
+```
+
+#### Build the app Docker image
+Most steps of this app expect the `cool-counter` Docker image to exist in your local Docker. Build it via below command:
+
+```
+./init.sh build
+```
+
+You will also need to keep rebuilding image if you check out this repo and do work locally. If there are any issues building, it's very helpful to run a Bash shell into a container at the point that the image build failed. You can do this because it is likely the prior images on which image is based succeeded.
+
+```
+# Imagine this step fails
+docker build -t cool-counter .
+
+# Find recent image builds (including your build failure)
+docker images | head -n 5 
+
+# Exec into bash container for image
+docker run -it <your-image-sha> bash
+```
 
 ### Running Cool Counter
 
@@ -48,7 +75,7 @@ Commands
 # Start the app
 ./init.sh local
 
-# Stop the app 
+# Stop the app
 ./init.sh local down
 
 ```
@@ -57,9 +84,6 @@ The app runs on localhost:4567
 
 Commands
 ```
-# Build the Docker image (only if not built in another step)
-./init.sh build
-
 # Start the app
 ./init.sh docker
 
@@ -72,9 +96,6 @@ The app runs on localhost:4567
 
 Commands
 ```
-# Build the Docker image (only if not built in another step)
-./init.sh build
-
 # Start the app
 ./init.sh docker-compose
 
@@ -88,14 +109,11 @@ The app runs on localhost
 
 Commands
 ```
-# Build the Docker image (only if not built in another step)
-./init.sh build
-
 # Start the app
 ./init.sh k8s
 
 # Stop the app (by deleting namespace and all K8s resources)
-./init.sh k8s down-namespace
+./init.sh k8s down
 
 # Stop the app (by additionally deleting cluster)
 ./init.sh k8s down-cluster

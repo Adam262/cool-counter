@@ -53,7 +53,7 @@ docker run --name=redis -d -p 6379:6379 redis
 
 * Step 1. Pulish your sinatra container's port via `docker run -p <host>:<container-port>`. This is so your localhost can talk to sinatra at a deterministic port
 * Step 2. Create a docker network and pass `docker run --network=<cool-network-name>` to each container. This is so your sinatra container and redis container expose ports to each other
-* Step 3. I really banged my head on giving Redis container a deterministic hostname.  The answer lies in (Docker networking docs) [https://docs.docker.com/config/containers/container-networking/]. So a container's hostname defaults to its container SHA. You can overide this with `docker run --hostname=redis`
+* Step 3. I really banged my head on giving Redis container a deterministic hostname.  The answer lies in (Docker networking docs)[https://docs.docker.com/config/containers/container-networking/]. So a container's hostname defaults to its container SHA. You can overide this with `docker run --hostname=redis`
 
 ```
 local network=cool-counter-network
@@ -87,7 +87,7 @@ An easy win is to `bundle install` before you copy the rest of your app code. El
 * Deploy back-end and expose to front-end via service 
 * Consider env var vs DNS for exposing back-end service
 * Test via /ping
-* Test via / route
+* Test via /
 
 #### Gotchas
 
@@ -144,6 +144,7 @@ cool-cluster-worker          Ready    <none>   4m33s   v1.17.0
 k describe cool-cluster-control-plane
 ```
 
+Rememeber to load images from your local Docker to the clusters
 ```
 docker build -t cool-tag .
 kind load docker-image cool-tag
@@ -165,14 +166,13 @@ Follow [kind instructions](https://kind.sigs.k8s.io/docs/user/ingress/)
 *Via env var*
 
 * Remember we need to tell our web server the name of the Redis host
-* You can pass in the host name via a k8s-generated env var, in this case `COOL_COUNTER_REDIS_SERVICE_HOST`
-* This approach works but has quirks, namely order dependency. You need to apply `redis-service` before anything else. 
 * `k exec <some-web-pod-name> -- printenv` will show a system env var called `COOL_COUNTER_REDIS_SERVICE_HOST`
 * Then pass this to your `web-deployment`. It will override the `REDIS_HOST` env var set in your Dockerfile  
+* This approach works but has quirks, namely order dependency. You need to apply `redis-service` before anything else. 
 
 *Via DNS*
 
-* This approach is a nicer then the env var approach because you can refer to the DNS name before the service exists. There is no order dependency in creating your resources
+* This approach is nicer then the env var approach because you can refer to the DNS name before the service exists. There is no order dependency in creating your resources
 * K8s provides a deterministic DNS convention. Eg, lookup a service hostname by `<service-name>.<namespace>.svc.cluster.local`
 
 * View a pod's DNS entry:
