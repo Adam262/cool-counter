@@ -6,7 +6,7 @@ set -euo pipefail
 init() {
   local action=$1
   local option=${2:-""}
-  local redis_version="redis:5.0.9-alpine3.11@sha256:3ab6896b5efe215c5cc110a835fecb73d5f55672ad4443f4baf51822db1854c6"
+  local redis_version="redis:latest"
 
   case $action in
 
