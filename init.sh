@@ -70,7 +70,6 @@ init() {
   k8s)
     local cluster_name="cool-cluster"
     local namespace="cool-namespace"
-    # local nginx_url="kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.6.3/deploy/static/provider/cloud/deploy.yaml"
 
     if [[ $option == "down" ]]; then
       kubectl delete namespace $namespace
@@ -106,13 +105,10 @@ init() {
     kubectl apply -f k8s/redis-service.yaml
     
     # Expose web app via ingress
-    # kubectl apply -f "${nginx_url}/mandatory.yaml"
-    # kubectl apply -f "${nginx_url}/provider/baremetal/service-nodeport.yaml"
-    # kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p "$(cat k8s/nginx-patch.json)"
     helm upgrade --install ingress-nginx ingress-nginx \
       --repo https://kubernetes.github.io/ingress-nginx \
       --namespace "$namespace"
-
+    kubectl apply -f k8s/ingress-class.yaml  
     kubectl apply -f k8s/ingress.yaml
     ;;
   esac

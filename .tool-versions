@@ -1,4 +1,4 @@
-helm 3.6.0
+helm 3.11.0
 kind 0.17.0
 kubectl 1.26.1
-ruby 2.6.5
+ruby 3.2.0
