@@ -10,4 +10,3 @@ spec:
     - protocol: TCP
       port: 4567
       targetPort: 4567
-  type: LoadBalancer

@@ -6,7 +6,7 @@ set -euo pipefail
 init() {
   local action=$1
   local option=${2:-""}
-  local redis_version="redis:5.0.9-alpine3.11@sha256:3ab6896b5efe215c5cc110a835fecb73d5f55672ad4443f4baf51822db1854c6"
+  local redis_version="redis:latest"
 
   case $action in
 
@@ -70,7 +70,7 @@ init() {
   k8s)
     local cluster_name="cool-cluster"
     local namespace="cool-namespace"
-    local nginx_url="https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static"
+    local kind_nginx_config="https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml"
 
     if [[ $option == "down" ]]; then
       kubectl delete namespace $namespace
@@ -106,11 +106,20 @@ init() {
     kubectl apply -f k8s/redis-service.yaml
     
     # Expose web app via ingress
-    kubectl apply -f "${nginx_url}/mandatory.yaml"
-    kubectl apply -f "${nginx_url}/provider/baremetal/service-nodeport.yaml"
-    kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p "$(cat k8s/nginx-patch.json)"
-    kubectl apply -f k8s/ingress.yaml
+    if [[ $option == "kind" ]]; then
+      echo "Applying Nginx ingress controller for Kind"
+      kubectl apply -f "$kind_nginx_config"
+      kubectl apply -f k8s/ingress.yaml
+    else 
+      echo "Applying Nginx ingress controller"
+      helm upgrade --install ingress-nginx ingress-nginx \
+        --repo https://kubernetes.github.io/ingress-nginx \
+        --namespace "$namespace"
+      kubectl apply -f k8s/ingress-class.yaml  
+      kubectl apply -f k8s/ingress.yaml
+    fi
     ;;
+
   esac
 }
 
