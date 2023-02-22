@@ -70,6 +70,7 @@ init() {
   k8s)
     local cluster_name="cool-cluster"
     local namespace="cool-namespace"
+    local kind_nginx_config="https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml"
 
     if [[ $option == "down" ]]; then
       kubectl delete namespace $namespace
@@ -105,12 +106,20 @@ init() {
     kubectl apply -f k8s/redis-service.yaml
     
     # Expose web app via ingress
-    helm upgrade --install ingress-nginx ingress-nginx \
-      --repo https://kubernetes.github.io/ingress-nginx \
-      --namespace "$namespace"
-    kubectl apply -f k8s/ingress-class.yaml  
-    kubectl apply -f k8s/ingress.yaml
+    if [[ $option == "kind" ]]; then
+      echo "Applying Nginx ingress controller for Kind"
+      kubectl apply -f "$kind_nginx_config"
+      kubectl apply -f k8s/ingress.yaml
+    else 
+      echo "Applying Nginx ingress controller"
+      helm upgrade --install ingress-nginx ingress-nginx \
+        --repo https://kubernetes.github.io/ingress-nginx \
+        --namespace "$namespace"
+      kubectl apply -f k8s/ingress-class.yaml  
+      kubectl apply -f k8s/ingress.yaml
+    fi
     ;;
+
   esac
 }
 
